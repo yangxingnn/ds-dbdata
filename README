@@ -1,0 +1,22 @@
+数据库备份、清理脚本（backup_dbdata.py）使用说明：
+
+1. 需要在安装配置文件（conf/install.conf)中添加如下配置：
+
+```
+[db_backup]
+backup_path:/home/postgres/data/backup
+schemas:data,resource
+except_tables:data.config_record,resource.springboard                                                 
+interval:7
+```
+
+- 添加内容时不要有空格
+- backup_path 为备份数据的目录，数据库的登陆用户需要有读写权限
+- schemas 为需要备份和清理的目录，多个用逗号隔开，不要空格
+- except_tables 为不希望备份和清理的表，需要加上schema名，多个用逗号隔开，不要空格
+- interval 为备份和清理数据的间隔时间，单位为天，默认暂定为7，即定期备份和清理7天前的数据
+
+2. 使用crontab命令来每隔一个“interval”天执行backup_dbdata.py脚本清理和备份数据，示例步骤如下：
+  a. 打开/var/spool/cron/{username}文件，（没有则自己创建）
+  b. 添加``14 03 * * 6 python {$DSDBDATA_HOME}/bin/backup_dbdata.py``，含义为每周周六3点14分执行backup_dbdata.py脚本
+  c. 添加完后检查crond服务是否运行，使用``service crond status``查看是否active，没有则可以使用``service crond start``等相关命令开启

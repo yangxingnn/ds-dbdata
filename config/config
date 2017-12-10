@@ -1,12 +1,12 @@
 [postgreSQL]
 username: postgres
 password: postgres
-dbname: cynosure
+dbname: testdb
 host: 127.0.0.1
 port: 5432
 
 [db_backup]
 backup_path:/home/postgres/data/backup
 schemas:resource
-except_tables:test,test2,data.score_b
-interval:36
+except_tables:resource.test,resource.test2,data.score_b
+interval:7

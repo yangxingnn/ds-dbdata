@@ -1,9 +1,8 @@
 #!/usr/bin/python
 # coding:utf-8
 
-'''delete outdated data in the database by postgreSQL
+'''backup outdated data and delete outdated data  
 @author : yangccnn
-@version : 1.0
 @todo : created in 2017-11-15
 '''
 
@@ -12,6 +11,11 @@ import ConfigParser
 import psycopg2
 import sys
 import datetime
+
+
+ENV_NAME = 'DSDBDATA_HOME'
+CONF_RELA_PATH = '/conf/install.conf'
+COLLECT_TIME_NAMES = ['collect_time', 'check_time', 'time']
 
 class DsData(object):
 
@@ -60,7 +64,7 @@ class DsData(object):
         d30 = (today - dl).strftime('%Y-%m-%d %H:%M:%S')     # interval间隔天前
         for schema, vallist in schema_dict.items():     # val: (table_name, collect_time_name)
             for tablename, collectname in vallist:
-                filepath = ''.join([self.backup_path, self.dbname, '/', schema, '/']) 
+                filepath = ''.join([self.backup_path, self.dbname, '/', schema, '/', tablename, '/']) 
                 filename = ''.join([tablename, '_', today.strftime('%y%m%d%H%M%S'), '.csv.gz'])
                 iscreate = self.create_file(filepath, filename)
                 if iscreate:
@@ -100,15 +104,15 @@ class DsData(object):
                 columns = list(map(lambda x: x[0],columns))
                 if schema not in schema_dict:
                     schema_dict[schema] = []
-                if 'collect_time' in columns:
-                    schema_dict[schema].append((table,'collect_time'))
-                elif 'check_time' in columns:
-                    schema_dict[schema].append((table,'check_time'))
+                for ctname in COLLECT_TIME_NAMES:
+                    if ctname in columns:
+                        schema_dict[schema].append((table,ctname))
         return schema_dict
 
 
 if __name__ == '__main__':
-    ds_data = DsData('DS_DATADB_HOME','/config/config')
+    ds_data = DsData(ENV_NAME, CONF_RELA_PATH)
     ds_data.read_config()
     ds_data.process_data()
+
 
